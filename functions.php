@@ -71,7 +71,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 call_user_func( 'WP_Rig\WP_Rig\wp_rig' );
 
 function dequeue_global_styles_on_author_page() {
-    if (is_author()) {
+    if ( is_author() || is_singular( 'gig' ) ) {
 
         wp_dequeue_style('wp-rig-global');
     }

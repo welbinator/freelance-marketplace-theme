@@ -15,7 +15,8 @@ wp_rig()->print_styles('wp-rig-content');
 ?>
 <main id="primary" class="site-main">
   <div class="contents">
-    <?php if ( have_posts() ) : while ( have_posts() ) : the_post();
+    <?php 
+    if ( have_posts() ) : while ( have_posts() ) : the_post();
       // Dynamic gig data from custom fields.
       $gig_short_description  = get_post_meta( get_the_ID(), 'gig_short_description', true );
       $gig_type               = get_post_meta( get_the_ID(), 'gig_type', true );
@@ -25,14 +26,52 @@ wp_rig()->print_styles('wp-rig-content');
       $gig_deadline           = get_post_meta( get_the_ID(), 'gig_deadline', true );
       $client_name            = get_the_author();
 
+      // Get current user information.
+      $current_user = wp_get_current_user();
+      $gig_author_id = get_the_author_meta('ID');
+      $allowed = false;
+      // Allow viewing if logged in as admin, freelancer, or the gig's owner.
+      if ( is_user_logged_in() ) {
+          if ( current_user_can('administrator') ) {
+              $allowed = true;
+          } elseif ( in_array('freelancer', (array)$current_user->roles) ) {
+              $allowed = true;
+          } elseif ( $current_user->ID === (int)$gig_author_id ) {
+              $allowed = true;
+          }
+      }
+
+      // If not allowed, show a login prompt and exit.
+      if ( ! $allowed ) {
+          echo '<div class="container mx-auto px-4 py-8">';
+          echo '<p>Login to see this gig</p>';
+          wp_login_form();
+          echo '</div>';
+          return;
+      }
+
+      // Query for the number of bids associated with this gig.
+      $bids_query = new \WP_Query( array(
+          'post_type'      => 'bid',
+          'meta_query'     => array(
+              array(
+                  'key'     => 'associated_gig',
+                  'value'   => get_the_ID(),
+                  'compare' => '='
+              )
+          ),
+          'posts_per_page' => -1,
+          'fields'         => 'ids',
+      ) );
+      $bids_count = $bids_query->found_posts;
+
       // Process bid submission if the form is submitted.
-      if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
-          if (!isset($_POST['bid_nonce']) || !wp_verify_nonce($_POST['bid_nonce'], 'submit_bid')) {
+      if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['submit_bid'] ) ) {
+          if ( !isset( $_POST['bid_nonce'] ) || !wp_verify_nonce( $_POST['bid_nonce'], 'submit_bid' ) ) {
               echo '<p class="text-red-600">Security check failed.</p>';
           } else {
-              $bid_amount   = isset($_POST['bidAmount']) ? sanitize_text_field($_POST['bidAmount']) : '';
-              $bid_comments = isset($_POST['bidComments']) ? sanitize_textarea_field($_POST['bidComments']) : '';
-              $current_user = wp_get_current_user();
+              $bid_amount   = isset( $_POST['bidAmount'] ) ? sanitize_text_field( $_POST['bidAmount'] ) : '';
+              $bid_comments = isset( $_POST['bidComments'] ) ? sanitize_textarea_field( $_POST['bidComments'] ) : '';
               $gig_id       = get_the_ID(); // current gig's ID
 
               // Create the Bid post.
@@ -43,13 +82,13 @@ wp_rig()->print_styles('wp-rig-content');
                   'post_author'  => $current_user->ID,
                   'post_type'    => 'bid'
               );
-              $bid_id = wp_insert_post($bid_post);
-              if ($bid_id) {
+              $bid_id = wp_insert_post( $bid_post );
+              if ( $bid_id ) {
                   // Associate the bid with the current gig via the ACF field.
-                  update_post_meta($bid_id, 'associated_gig', $gig_id);
+                  update_post_meta( $bid_id, 'associated_gig', $gig_id );
                   // Map bid amount and bid note to their respective custom fields.
-                  update_post_meta($bid_id, 'bid_amount', $bid_amount);
-                  update_post_meta($bid_id, 'bid_note', $bid_comments);
+                  update_post_meta( $bid_id, 'bid_amount', $bid_amount );
+                  update_post_meta( $bid_id, 'bid_note', $bid_comments );
                   echo '<p class="text-green-600">Your bid has been submitted!</p>';
               } else {
                   echo '<p class="text-red-600">There was an error submitting your bid. Please try again.</p>';
@@ -79,7 +118,7 @@ wp_rig()->print_styles('wp-rig-content');
             </div>
           </div>
           <div class="p-6 pt-0">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign w-4 h-4 mr-1">
                   <line x1="12" x2="12" y1="2" y2="22"></line>
@@ -120,6 +159,10 @@ wp_rig()->print_styles('wp-rig-content');
                 <span class="font-semibold mr-2">Payment Type:</span>
                 <?php echo esc_html( $gig_payment_type ); ?>
               </div>
+              <div class="flex items-center">
+                <span class="font-semibold mr-2">Bids Submitted:</span>
+                <?php echo esc_html( $bids_count ); ?>
+              </div>
             </div>
           </div>
         </div>
@@ -134,7 +177,8 @@ wp_rig()->print_styles('wp-rig-content');
           </div>
         </div>
 
-        <!-- Submit Bid Card -->
+        <!-- Submit Bid Card (only for freelancers and admins) -->
+        <?php if ( in_array( 'freelancer', (array)$current_user->roles ) || current_user_can('administrator') ) : ?>
         <div class="rounded-lg border border-solid border-slate-200 bg-card text-card-foreground shadow-sm" data-v0-t="card">
           <div class="flex flex-col space-y-1.5 p-6">
             <h3 class="text-2xl font-semibold leading-none tracking-tight m-0">Submit Your Bid</h3>
@@ -156,6 +200,7 @@ wp_rig()->print_styles('wp-rig-content');
             </form>
           </div>
         </div>
+        <?php endif; ?>
       </div>
     </div>
     <?php endwhile; endif; ?>
