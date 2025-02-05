@@ -253,6 +253,10 @@ class Component implements Component_Interface, Templating_Component_Interface {
 				'file'             => 'content.min.css',
 				'preload_callback' => '__return_true',
 			),
+			'wp-rig-custom'    => array(
+				'file'             => 'custom.min.css',
+				'preload_callback' => '__return_true',
+			),
 			'wp-rig-sidebar'    => array(
 				'file'             => 'sidebar.min.css',
 				'preload_callback' => function () {
@@ -272,6 +276,7 @@ class Component implements Component_Interface, Templating_Component_Interface {
 					return 'front-page.php' === basename( $template );
 				},
 			),
+			
 		);
 
 		/**

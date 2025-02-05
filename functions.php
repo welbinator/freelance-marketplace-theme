@@ -69,3 +69,50 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 // Initialize the theme.
 call_user_func( 'WP_Rig\WP_Rig\wp_rig' );
+
+function dequeue_global_styles_on_author_page() {
+    if (is_author()) {
+
+        wp_dequeue_style('wp-rig-global');
+    }
+}
+add_action('wp_enqueue_scripts', 'dequeue_global_styles_on_author_page', 100);
+
+// enqueue tailwind on author page
+function wprig_enqueue_author_assets() {
+    // Only enqueue the stylesheet on author pages.
+    if ( is_author() || is_singular( 'gig' ) ) {
+		// Build the URL to the CSS file.
+		$css_url = get_template_directory_uri() . '/assets/css/vendor/tailwind-compiled.css';
+	
+		// Optionally, use file modification time as the version for cache busting.
+		$css_path = get_template_directory() . '/assets/css/vendor/tailwind-compiled.css';
+		$version = file_exists( $css_path ) ? filemtime( $css_path ) : false;
+	
+		wp_enqueue_style( 'wprig-tailwind', $css_url, array(), $version );
+	}
+	
+}
+add_action( 'wp_enqueue_scripts', 'wprig_enqueue_author_assets' );
+
+
+// function log_enqueued_css_handles_and_files_to_error_log() {
+//     global $wp_styles;
+
+//     if (!isset($wp_styles) || empty($wp_styles->queue)) {
+//         error_log('No CSS files are currently enqueued.');
+//         return;
+//     }
+
+//     foreach ($wp_styles->queue as $handle) {
+//         $style = $wp_styles->registered[$handle] ?? null;
+
+//         if ($style && isset($style->src)) {
+//             error_log('Enqueued CSS Handle: ' . $handle . ' | File: ' . esc_url($style->src));
+//         } else {
+//             error_log('Enqueued CSS Handle: ' . $handle . ' | File: Not Found');
+//         }
+//     }
+// }
+// add_action('wp_enqueue_scripts', 'log_enqueued_css_handles_and_files_to_error_log', 999);
+
