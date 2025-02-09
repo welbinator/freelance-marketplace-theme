@@ -99,7 +99,7 @@ wp_rig()->print_styles('wp-rig-content');
     <div class="container mx-auto px-4 py-8">
       <div class="space-y-6">
         <!-- Gig Overview Card -->
-        <div class="rounded-lg border border-solid border-slate-200 bg-card text-card-foreground shadow-sm" data-v0-t="card">
+        <div class="rounded-lg border border-solid border-slate-200 bg-card text-card-foreground shadow-sm">
           <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex justify-between items-start">
               <div>
@@ -112,40 +112,25 @@ wp_rig()->print_styles('wp-rig-content');
                   <?php echo esc_html( $client_name ); ?>
                 </p>
               </div>
-              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80" data-v0-t="badge">
+              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
                 <?php echo esc_html( $gig_type ); ?>
               </div>
             </div>
           </div>
           <div class="p-6 pt-0">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <!-- Budget -->
               <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign w-4 h-4 mr-1">
-                  <line x1="12" x2="12" y1="2" y2="22"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
+                
                 <span class="font-semibold mr-2">Budget:</span>
                 <?php
-                  if ( strcasecmp( $gig_payment_type, 'Project fee' ) === 0 ) {
-                      echo '$' . number_format( floatval( $gig_budget ) );
-                  } else {
-                      echo '$' . esc_html( $gig_budget ) . '/hour';
-                  }
+                  echo '$' . esc_html( $gig_budget ) . ' ' . esc_html( strtolower($gig_payment_type) );
                 ?>
               </div>
+
+              <!-- Deadline -->
               <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days w-4 h-4 mr-1">
-                  <path d="M8 2v4"></path>
-                  <path d="M16 2v4"></path>
-                  <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                  <path d="M3 10h18"></path>
-                  <path d="M8 14h.01"></path>
-                  <path d="M12 14h.01"></path>
-                  <path d="M16 14h.01"></path>
-                  <path d="M8 18h.01"></path>
-                  <path d="M12 18h.01"></path>
-                  <path d="M16 18h.01"></path>
-                </svg>
+                
                 <span class="font-semibold mr-2">Deadline:</span>
                 <?php 
                   if ( $gig_deadline ) {
@@ -155,10 +140,8 @@ wp_rig()->print_styles('wp-rig-content');
                   }
                 ?>
               </div>
-              <div class="flex items-center">
-                <span class="font-semibold mr-2">Payment Type:</span>
-                <?php echo esc_html( $gig_payment_type ); ?>
-              </div>
+
+              <!-- Bids Submitted -->
               <div class="flex items-center">
                 <span class="font-semibold mr-2">Bids Submitted:</span>
                 <?php echo esc_html( $bids_count ); ?>

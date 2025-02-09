@@ -81,7 +81,7 @@ add_action('wp_enqueue_scripts', 'dequeue_global_styles_on_author_page', 100);
 // enqueue tailwind on author page
 function wprig_enqueue_author_assets() {
     // Only enqueue the stylesheet on author pages.
-    if ( is_author() || is_singular( 'gig' ) ) {
+    // if ( is_author() || is_singular( 'gig' ) ) {
 		// Build the URL to the CSS file.
 		$css_url = get_template_directory_uri() . '/assets/css/vendor/tailwind-compiled.css';
 	
@@ -90,7 +90,7 @@ function wprig_enqueue_author_assets() {
 		$version = file_exists( $css_path ) ? filemtime( $css_path ) : false;
 	
 		wp_enqueue_style( 'wprig-tailwind', $css_url, array(), $version );
-	}
+	// }
 	
 }
 add_action( 'wp_enqueue_scripts', 'wprig_enqueue_author_assets' );
