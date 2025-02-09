@@ -78,7 +78,7 @@ wp_rig()->print_styles('wp-rig-content');
               $bid_post = array(
                   'post_title'   => 'Bid for ' . get_the_title(),
                   'post_content' => '', // Leave empty since bid_note will hold the additional comments.
-                  'post_status'  => 'pending', // Change to 'publish' if you want instant publication.
+                  'post_status'  => 'publish', // Change to 'publish' if you want instant publication.
                   'post_author'  => $current_user->ID,
                   'post_type'    => 'bid'
               );
@@ -103,7 +103,7 @@ wp_rig()->print_styles('wp-rig-content');
           <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-semibold tracking-tight text-2xl m-0"><?php the_title(); ?></h3>
+                <h3 class="font-semibold tracking-tight text-2xl m-0"><?php echo esc_html( $gig_short_description ); ?></h3>
                 <p class="text-muted-foreground mt-1 flex items-center m-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user w-4 h-4 mr-1">
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
